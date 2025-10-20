@@ -8,7 +8,7 @@ from google.cloud import videointelligence
 from pathlib import Path
 
 # Initialize Whisper model (using OpenAI's official Whisper)
-whisper_model = whisper.load_model("small")  # Changed to "small" for lower memory usage
+whisper_model = whisper.load_model("tiny")  # Switch to the smallest model if necessary
 
 # Initialize Instaloader
 L = instaloader.Instaloader()
