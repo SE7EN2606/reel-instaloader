@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: reel-instaloader
+    env: docker
+    buildCommand: ""
+    startCommand: "python3 app.py"
+    plan: free
+    branches:
+      - main
