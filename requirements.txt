@@ -5,3 +5,13 @@ whisper
 ffmpeg-python
 flask
 openai-whisper
+nvidia-cusparselt-cu12
+nvidia-cudnn-cu12
+nvidia-cufft-cu12
+nvidia-cufile-cu12
+nvidia-curand-cu12
+nvidia-cusolver-cu12
+nvidia-cuda-runtime-cu12
+nvidia-nccl-cu12
+nvidia-nvtx-cu12
+nvidia-nvjitlink-cu12
