@@ -1,7 +1,6 @@
 instaloader
-google-cloud-video-intelligence
+google-cloud-video
 whisper
 ffmpeg
-openai
 requests
-flask  # If you're creating a web API for interaction
+flask  # If you're building a web app
