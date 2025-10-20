@@ -1,7 +1,7 @@
-# Use a base image with a smaller footprint (Debian slim)
+# Use Debian slim image as a base
 FROM debian:bullseye-slim
 
-# Install Python 3.9 and other necessary dependencies
+# Install Python 3.9 and essential build tools
 RUN apt-get update && apt-get install -y \
     python3.9 \
     python3.9-distutils \
@@ -9,23 +9,21 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Set python3.9 as the default python version
+# Set Python 3.9 as the default Python version
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
 
 # Install pip for Python 3.9
 RUN curl https://bootstrap.pypa.io/get-pip.py | python3
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy the requirements.txt file to the container
+# Copy the requirements.txt and install dependencies
 COPY requirements.txt .
-
-# Install the dependencies in Python 3.9
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application files to the container
+# Copy the application files
 COPY . .
 
-# Set the start command for the app
+# Use python3 to run the app
 CMD ["python3", "app.py"]
