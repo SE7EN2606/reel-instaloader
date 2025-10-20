@@ -3,7 +3,8 @@ services:
     name: reel-instaloader
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python app.py"  # Replace this with your main Python file (if you have a web app)
+    startCommand: "python app.py"
     plan: free
-    branches: 
-      - main  # Make sure to deploy from the main branch
+    branches:
+      - main
+    python_version: "3.9"
