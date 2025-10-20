@@ -1,19 +1,8 @@
-# Use Debian slim image as a base
-FROM debian:bullseye-slim
+# Use a minimal Python image
+FROM python:3.9-slim
 
-# Install Python 3.9 and essential build tools
-RUN apt-get update && apt-get install -y \
-    python3.9 \
-    python3.9-distutils \
-    python3.9-venv \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set Python 3.9 as the default Python version
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
-
-# Install pip for Python 3.9
-RUN curl https://bootstrap.pypa.io/get-pip.py | python3
+# Install pip
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -25,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application files
 COPY . .
 
-# Expose the correct port for Render
+# Expose the port for Render
 EXPOSE 10000
 
-# Use python3 to run the app
+# Command to run the app
 CMD ["python3", "app.py"]
