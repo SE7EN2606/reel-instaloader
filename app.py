@@ -2,6 +2,19 @@ import instaloader
 import os
 from google.cloud import storage
 from pathlib import Path
+import json
+
+# Function to load credentials from the environment variable (optional debugging)
+def load_credentials():
+    google_credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+    if google_credentials:
+        try:
+            credentials = json.loads(google_credentials)  # Parsing the JSON content of the service account credentials
+            print(f"Loaded credentials for project: {credentials.get('project_id')}")
+        except json.JSONDecodeError:
+            print("Error parsing Google credentials JSON.")
+    else:
+        print("No GOOGLE_APPLICATION_CREDENTIALS found.")
 
 # Initialize Instaloader
 L = instaloader.Instaloader()
@@ -23,13 +36,19 @@ storage_client = storage.Client()
 # Function to upload file to Google Cloud Storage bucket
 def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the Google Cloud Storage bucket."""
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-    blob.upload_from_filename(source_file_name)
-    print(f"File {source_file_name} uploaded to {destination_blob_name}.")
+    try:
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(destination_blob_name)
+        blob.upload_from_filename(source_file_name)
+        print(f"File {source_file_name} uploaded to {destination_blob_name}.")
+    except Exception as e:
+        print(f"Error uploading to Google Cloud Storage: {str(e)}")
 
 # Example usage
 if __name__ == "__main__":
+    # Load Google Cloud credentials (this will check the environment variable)
+    load_credentials()
+
     # Replace with the Instagram reel URL you want to download
     reel_url = "https://www.instagram.com/reel/DPrwenMjKtw/"  # Use your own Reel URL
     download_path = "downloaded_reels"
