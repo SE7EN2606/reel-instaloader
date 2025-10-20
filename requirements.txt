@@ -1,0 +1,7 @@
+instaloader
+google-cloud-video-intelligence
+whisper
+ffmpeg
+openai
+requests
+flask  # If you're creating a web API for interaction
