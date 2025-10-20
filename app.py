@@ -41,7 +41,7 @@ if __name__ == "__main__":
         print(f"Reel downloaded at: {video_path}")
         
         # Google Cloud Storage bucket name
-        bucket_name = "your-bucket-name"  # Replace with your actual bucket name
+        bucket_name = "recolekt-uploader"  # Replace with your actual bucket name
         
         # Upload video to Google Cloud Storage
         upload_to_gcs(bucket_name, video_path, Path(video_path).name)
