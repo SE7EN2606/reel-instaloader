@@ -8,7 +8,7 @@ from google.cloud import videointelligence
 from pathlib import Path
 
 # Initialize Whisper model (using OpenAI's official Whisper)
-whisper_model = whisper.load_model("base")
+whisper_model = whisper.load_model("small")  # Changed to "small" for lower memory usage
 
 # Initialize Instaloader
 L = instaloader.Instaloader()
@@ -33,13 +33,13 @@ def download_reel(reel_url, download_path="downloaded_reels"):
         print(f"Error downloading reel: {str(e)}")
         return None
 
-# Function to extract frames from the video using ffmpeg
+# Function to extract frames from the video using ffmpeg (optimized for less memory usage)
 def extract_frames(video_path, frames_dir="extracted_frames"):
     os.makedirs(frames_dir, exist_ok=True)
     output_pattern = os.path.join(frames_dir, "frame_%04d.jpg")
     try:
-        # Extract frames from the video (every second)
-        ffmpeg.input(video_path, v='error',  r=1).output(output_pattern).run()
+        # Extract frames from the video (every 5 seconds for lower memory usage)
+        ffmpeg.input(video_path, v='error', r=0.2).output(output_pattern).run()  # Every 5 seconds
         print(f"Frames extracted to {frames_dir}")
     except Exception as e:
         print(f"Error extracting frames: {e}")
