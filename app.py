@@ -1,10 +1,20 @@
 import instaloader
 import os
+import json
+import ffmpeg
+import whisper
 from google.cloud import storage
+from google.cloud import videointelligence
 from pathlib import Path
 
 # Initialize Instaloader
 L = instaloader.Instaloader()
+
+# Initialize Whisper model for transcription
+whisper_model = whisper.load_model("base")
+
+# Initialize Google Cloud Video Intelligence client
+video_intelligence_client = videointelligence.VideoIntelligenceServiceClient()
 
 # Function to download a single Instagram reel by URL
 def download_reel(reel_url, download_path="downloaded_reels"):
@@ -23,14 +33,77 @@ def download_reel(reel_url, download_path="downloaded_reels"):
         print(f"Error downloading reel: {str(e)}")
         return None
 
-# Check if GOOGLE_APPLICATION_CREDENTIALS environment variable is set
-google_credentials = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-print("Google Credentials Path:", google_credentials)
+# Function to extract frames from the video using ffmpeg
+def extract_frames(video_path, frames_dir="extracted_frames"):
+    os.makedirs(frames_dir, exist_ok=True)
+    output_pattern = os.path.join(frames_dir, "frame_%04d.jpg")
+    try:
+        # Extract frames from the video (every second)
+        ffmpeg.input(video_path, v='error',  r=1).output(output_pattern).run()
+        print(f"Frames extracted to {frames_dir}")
+    except Exception as e:
+        print(f"Error extracting frames: {e}")
 
-# Initialize Google Cloud Storage client
-storage_client = storage.Client()
+# Function to transcribe audio from the video using Whisper
+def transcribe_audio(video_path):
+    try:
+        print("Transcribing audio...")
+        result = whisper_model.transcribe(video_path)
+        return result["text"]
+    except Exception as e:
+        print(f"Error transcribing audio: {e}")
+        return None
 
-# Function to upload file to Google Cloud Storage bucket
+# Function to analyze video content using Google Cloud Video Intelligence
+def analyze_video(video_path):
+    try:
+        with open(video_path, "rb") as video_file:
+            video_content = video_file.read()
+
+        features = [videointelligence.Feature.LABEL_DETECTION]
+        operation = video_intelligence_client.annotate_video(
+            input_content=video_content,
+            features=features
+        )
+        result = operation.result(timeout=90)
+        
+        # Extracting labels (objects, scenes, activities)
+        labels = []
+        for label in result.annotation_results[0].segment_label_annotations:
+            labels.append(label.entity.description)
+        
+        print(f"Video labels: {labels}")
+        return labels
+    except Exception as e:
+        print(f"Error analyzing video: {e}")
+        return []
+
+# Function to generate hashtags and categorization
+def generate_hashtags(caption, vision_labels, transcript):
+    try:
+        # Create a prompt for a language model (e.g., OpenAI GPT) to generate hashtags and categorization
+        prompt = f"""
+        Given the following caption, visual labels, and transcript, categorize this Instagram Reel and suggest relevant hashtags:
+        Caption: {caption}
+        Vision Labels: {vision_labels}
+        Transcript: {transcript}
+        """
+
+        # Call OpenAI API or similar model here to generate categorization and hashtags
+        # (For simplicity, returning dummy hashtags here)
+        response = {
+            "category": "Entertainment",
+            "hashtags": ["#funny", "#dance", "#viral", "#trend"]
+        }
+
+        print(f"Generated Category: {response['category']}")
+        print(f"Generated Hashtags: {', '.join(response['hashtags'])}")
+        return response
+    except Exception as e:
+        print(f"Error generating hashtags: {e}")
+        return {}
+
+# Function to upload the video to Google Cloud Storage
 def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the Google Cloud Storage bucket."""
     bucket = storage_client.bucket(bucket_name)
@@ -42,23 +115,32 @@ def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
     except Exception as e:
         print(f"Error uploading to Google Cloud Storage: {e}")
 
-# Example usage
+# Main function
 if __name__ == "__main__":
-    # Replace with the Instagram reel URL you want to download
     reel_url = "https://www.instagram.com/reel/DPrwenMjKtw/"  # Use your own Reel URL
     download_path = "downloaded_reels"
     
-    # Download the Reel video
+    # Step 1: Download the Instagram Reel
     video_path = download_reel(reel_url, download_path)
     
-    # Check if the video was successfully downloaded
     if video_path and os.path.exists(video_path):
         print(f"Reel downloaded at: {video_path}")
+
+        # Step 2: Extract frames from the video
+        extract_frames(video_path)
+
+        # Step 3: Transcribe audio
+        transcript = transcribe_audio(video_path)
+
+        # Step 4: Analyze video for labels (objects/scenes)
+        labels = analyze_video(video_path)
+
+        # Step 5: Generate categorization and hashtags
+        caption = "Sample caption from the post"  # This could be fetched using Instaloader as well
+        result = generate_hashtags(caption, labels, transcript)
         
-        # Google Cloud Storage bucket name
+        # Optionally, upload video to Google Cloud Storage
         bucket_name = "recolekt-uploader"  # Replace with your actual bucket name
-        
-        # Upload video to Google Cloud Storage
         upload_to_gcs(bucket_name, video_path, Path(video_path).name)
     else:
         print(f"Failed to download the reel or file not found: {video_path}")
