@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     python3.9-distutils \
     python3.9-venv \
     curl \
+    ffmpeg \  # Install FFmpeg
     && rm -rf /var/lib/apt/lists/*
 
 # Set Python 3.9 as the default Python version
