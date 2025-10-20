@@ -1,6 +1,6 @@
-instaloader
-google-cloud-video
-whisper
-ffmpeg
-requests
-flask  # If you're building a web app
+instaloader==4.14.2
+google-cloud-video==3.0.0  # or the latest compatible version
+whisper==1.0.0
+ffmpeg-python==0.2.0
+requests==2.28.1
+flask==2.2.2
