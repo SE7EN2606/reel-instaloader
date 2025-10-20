@@ -2,4 +2,4 @@ instaloader==4.14.2
 google-cloud-storage==2.6.0
 requests==2.28.1
 whisper==1.0.0
-flask==2.2.2  # Optional if you're building a web API
+flask==2.2.2
