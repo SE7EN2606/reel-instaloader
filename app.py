@@ -1,17 +1,17 @@
+import whisper
 import instaloader
 import os
 import json
 import ffmpeg
-import whisper
 from google.cloud import storage
 from google.cloud import videointelligence
 from pathlib import Path
 
+# Initialize Whisper model (using OpenAI's official Whisper)
+whisper_model = whisper.load_model("base")
+
 # Initialize Instaloader
 L = instaloader.Instaloader()
-
-# Initialize Whisper model for transcription
-whisper_model = whisper.load_model("base")
 
 # Initialize Google Cloud Video Intelligence client
 video_intelligence_client = videointelligence.VideoIntelligenceServiceClient()
