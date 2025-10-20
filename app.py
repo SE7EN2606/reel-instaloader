@@ -11,8 +11,14 @@ def download_reel(reel_url, download_path="downloaded_reels"):
     short_code = reel_url.split("/")[-2]  # Extract the short code from the URL
     try:
         # Download the reel (this will download the video and metadata)
+        print(f"Attempting to download reel: {short_code}")
         L.download_post(instaloader.Post.from_shortcode(L.context, short_code), target=download_path)
-        return os.path.join(download_path, f"{short_code}.mp4")  # Return the downloaded video path
+        reel_path = os.path.join(download_path, f"{short_code}.mp4")
+        if os.path.exists(reel_path):
+            return reel_path
+        else:
+            print(f"Downloaded file not found at expected path: {reel_path}")
+            return None
     except Exception as e:
         print(f"Error downloading reel: {str(e)}")
         return None
@@ -30,6 +36,7 @@ def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
     try:
+        print(f"Uploading file {source_file_name} to Google Cloud Storage...")
         blob.upload_from_filename(source_file_name)
         print(f"File {source_file_name} uploaded to {destination_blob_name}.")
     except Exception as e:
